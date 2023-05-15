@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const sequelize = require("sequelize");
 const db = require('./models');
 
 const app = express();
@@ -50,6 +51,26 @@ app.put('/api/games/:id', async (req, res) => {
     return res.send(game)
   } catch (err) {
     console.error('***Error updating game', err);
+    return res.status(400).send(err);
+  }
+});
+
+app.post('/api/games/search', async (req, res) => {
+  // eslint-disable-next-line radix
+  const { name, platform} = req.body;
+  try {
+    const games = await db.Game.findAll({
+      where: {
+        name: {
+          [sequelize.Op.like]: `%${name}%`
+        },
+        ...(platform && {platform})
+      }
+      });
+
+    return res.send(games)
+  } catch (err) {
+    console.error('***Error searching games', err);
     return res.status(400).send(err);
   }
 });

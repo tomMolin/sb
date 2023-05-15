@@ -81,6 +81,8 @@ describe('PUT /api/games/1', () => {
     });
 });
 
+
+
 /**
  * Testing update game endpoint
  */
@@ -104,6 +106,102 @@ describe('GET /api/games', () => {
             .set('Accept', 'application/json')
         assert.strictEqual(status, 200);
         assert.strictEqual(body.length, 0);
+    });
+});
+
+/**
+ * Testing update game endpoint
+ */
+describe('POST /api/games/search', () => {
+    it('respond with 200 and return a list of "test" games for android platform only', async () => {
+        let data = {
+            name: "Test",
+            platform: "android",
+        }
+
+        await request(app)
+            .post('/api/games')
+            .set('Accept', 'application/json')
+            .send({
+                publisherId: "1234567890",
+                name: "Test App",
+                platform: "android",
+                storeId: "1234",
+                bundleId: "test.bundle.id",
+                appVersion: "1.0.5",
+                isPublished: true
+            })
+
+        await request(app)
+            .post('/api/games')
+            .set('Accept', 'application/json')
+            .send({
+                publisherId: "234567891",
+                name: "test App",
+                platform: "ios",
+                storeId: "12345",
+                bundleId: "test.bundle.id",
+                appVersion: "2.0.0",
+                isPublished: true
+            });
+
+
+
+        const { body, status } = await request(app)
+            .post('/api/games/search')
+            .set('Accept', 'application/json')
+            .send(data)
+        assert.strictEqual(status, 200);
+        assert.strictEqual(body.length, 1);
+        assert.strictEqual(body[0].publisherId, '1234567890');
+        assert.strictEqual(body[0].name, 'Test App');
+        assert.strictEqual(body[0].platform, 'android');
+        assert.strictEqual(body[0].storeId, '1234');
+        assert.strictEqual(body[0].bundleId, 'test.bundle.id');
+        assert.strictEqual(body[0].appVersion, '1.0.5');
+        assert.strictEqual(body[0].isPublished, true);
+    });
+
+    it('respond with 200 and return a list of "app" games for all platform ', async () => {
+        let data = {
+            name: "App",
+            platform: "",
+        }
+
+        // Arrange:
+        await request(app)
+            .post('/api/games')
+            .set('Accept', 'application/json')
+            .send({
+                publisherId: "234567891",
+                name: "Other App",
+                platform: "ios",
+                storeId: "12345",
+                bundleId: "test.bundle.id",
+                appVersion: "2.0.0",
+                isPublished: true
+            });
+
+        await request(app)
+            .post('/api/games')
+            .set('Accept', 'application/json')
+            .send({
+                publisherId: "234567891",
+                name: "test",
+                platform: "android",
+                storeId: "12345",
+                bundleId: "test.bundle.id",
+                appVersion: "2.0.0",
+                isPublished: true
+            });
+
+        //Assert:
+        const { body, status } = await request(app)
+            .post('/api/games/search')
+            .set('Accept', 'application/json')
+            .send(data)
+        assert.strictEqual(status, 200);
+        assert.strictEqual(body.length, 3);
     });
 });
 
