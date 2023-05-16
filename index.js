@@ -56,7 +56,6 @@ app.put('/api/games/:id', async (req, res) => {
 });
 
 app.post('/api/games/search', async (req, res) => {
-  // eslint-disable-next-line radix
   const { name, platform} = req.body;
   try {
     const games = await db.Game.findAll({
@@ -74,6 +73,35 @@ app.post('/api/games/search', async (req, res) => {
     return res.status(400).send(err);
   }
 });
+
+app.post('/api/games/populate', async (req, res) => {
+  try{
+
+    const iosApps = require('./ios.top100.json');
+    const androidApps = require('./android.top100.json');
+    const data = iosApps.concat(androidApps);
+    const appData = data.reduce((acc, groupedApp) => {
+        return acc.concat(groupedApp.map(appContent => {
+          return {
+            publisherId: String(appContent.publisher_id),
+          name: appContent.name,
+          platform: appContent.os,
+          storeId: String(appContent.id),
+          bundleId: String(appContent.bundle_id),
+          appVersion: appContent.version,
+          isPublished: !!appContent.publisher_id};
+        }));
+      }, []);
+    await db.Game.bulkCreate(appData);
+
+
+    res.status(204).send();
+  } catch (err) {
+    console.error('***Error populating games', err);
+    return res.status(400).send(err);
+  }
+});
+
 
 app.listen(3000, () => {
   console.log('Server is up on port 3000');

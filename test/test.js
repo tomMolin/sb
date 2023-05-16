@@ -110,7 +110,7 @@ describe('GET /api/games', () => {
 });
 
 /**
- * Testing update game endpoint
+ * Testing search game endpoint
  */
 describe('POST /api/games/search', () => {
     it('respond with 200 and return a list of "test" games for android platform only', async () => {
@@ -126,7 +126,7 @@ describe('POST /api/games/search', () => {
                 publisherId: "1234567890",
                 name: "Test App",
                 platform: "android",
-                storeId: "1234",
+                storeId: "1233",
                 bundleId: "test.bundle.id",
                 appVersion: "1.0.5",
                 isPublished: true
@@ -139,7 +139,7 @@ describe('POST /api/games/search', () => {
                 publisherId: "234567891",
                 name: "test App",
                 platform: "ios",
-                storeId: "12345",
+                storeId: "123456",
                 bundleId: "test.bundle.id",
                 appVersion: "2.0.0",
                 isPublished: true
@@ -156,7 +156,7 @@ describe('POST /api/games/search', () => {
         assert.strictEqual(body[0].publisherId, '1234567890');
         assert.strictEqual(body[0].name, 'Test App');
         assert.strictEqual(body[0].platform, 'android');
-        assert.strictEqual(body[0].storeId, '1234');
+        assert.strictEqual(body[0].storeId, '1233');
         assert.strictEqual(body[0].bundleId, 'test.bundle.id');
         assert.strictEqual(body[0].appVersion, '1.0.5');
         assert.strictEqual(body[0].isPublished, true);
@@ -176,7 +176,7 @@ describe('POST /api/games/search', () => {
                 publisherId: "234567891",
                 name: "Other App",
                 platform: "ios",
-                storeId: "12345",
+                storeId: "34567",
                 bundleId: "test.bundle.id",
                 appVersion: "2.0.0",
                 isPublished: true
@@ -189,7 +189,7 @@ describe('POST /api/games/search', () => {
                 publisherId: "234567891",
                 name: "test",
                 platform: "android",
-                storeId: "12345",
+                storeId: "45678",
                 bundleId: "test.bundle.id",
                 appVersion: "2.0.0",
                 isPublished: true
@@ -205,3 +205,15 @@ describe('POST /api/games/search', () => {
     });
 });
 
+/**
+ * Testing search game endpoint
+ */
+describe('POST /api/games/populate', () => {
+    it('respond with 204 and populate database with new entries', async () => {
+        //Assert:
+        const { status } = await request(app)
+            .post('/api/games/populate')
+            .send();
+        assert.strictEqual(status, 204);
+    });
+});
